@@ -37,7 +37,6 @@ You can then update configs in the `.env` files to customize your configurations
 
 Before deploying it, make sure you change at least the values  in `.env` file for:
 
-- `SECRET_KEY` by setting it to the output from this command `openssl rand -base64 32`.
 - `WORKOS_API_KEY`
 - `WORKOS_CLIENT_ID`
 
@@ -45,11 +44,7 @@ Before deploying it, make sure you change at least the values  in `.env` file fo
 
 Once setting up the environment variable, you can start the app by running `docker compose watch`.
 
-You can then go to `http://localhost:5173` in the browser and login as test user with the following credentials:
-```
-Email: user@test.com
-Password: testuserpassword
-```
+You can then go to `http://localhost:5173` in the browser, signup and login to use the app.
 
 ## Backend Development
 

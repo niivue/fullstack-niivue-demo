@@ -20,6 +20,8 @@ Automatic Alternative Docs (ReDoc): http://localhost:8000/redoc
 
 ## Local setup using Docker 
 
+The quickest and easiest way to get the project running on your local machine is to use [Docker Compose](https://docs.docker.com/compose/). This will let you build and run the backend, frontend and database containers locally.
+
 Requirements:
 - Docker
 
