@@ -37,5 +37,7 @@ ENV DATA_DIR="/app/data"
 ENV SCENE_SCHEMA_ID="niivue-fullstack-demo"
 ENV PYTHONPATH="/app"
 
+EXPOSE 8000
+
 # Use the serve task for production
 CMD ["pixi", "run", "serve"]

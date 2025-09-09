@@ -22,8 +22,6 @@ services:
           ignore:
             - ./backend/.pixi
             - .pixi
-        - path: ./backend/static
-          action: rebuild
         - path: ./backend/pixi.toml
           action: rebuild
 

@@ -1,5 +1,5 @@
 resource "aws_ecr_repository" "fullstack_niivue_backend" {
-  name = "fullstack_niivue_backend"
+  name = "fullstack-niivue-backend"
 }
 
 resource "docker_image" "fullstack_niivue_backend" {
@@ -17,7 +17,7 @@ resource "docker_registry_image" "fullstack_niivue_backend" {
 }
 
 resource "aws_ecs_service" "fullstack_niivue_backend" {
-  name            = "fullstack_niivue_backend"
+  name            = "fullstack-niivue-backend"
   cluster         = aws_ecs_cluster.fullstack_niivue.id
   task_definition = aws_ecs_task_definition.fullstack_niivue_backend.arn
   desired_count   = 1
@@ -59,6 +59,7 @@ resource "aws_ecs_task_definition" "fullstack_niivue_backend" {
           hostPort      = 8000
         }
       ],
+      environment = local.backend_environment_vars,
       logConfiguration = {
         logDriver = "awslogs",
         options = {
@@ -74,14 +75,14 @@ resource "aws_ecs_task_definition" "fullstack_niivue_backend" {
 
 # Security Group
 resource "aws_security_group" "fullstack_niivue_backend" {
-  name        = "fullstack_niivue_backend"
+  name        = "fullstack-niivue-backend"
   description = "Fullstack NiiVue API Security Group"
 
   ingress {
     from_port       = 8000
     to_port         = 8000
     protocol        = "tcp"
-    security_groups = [aws_security_group.fullstack_niivue_alb.id]
+    security_groups = [aws_security_group.fullstack_niivue_lb.id]
   }
 
   egress {
@@ -102,7 +103,7 @@ resource "aws_appautoscaling_target" "fullstack_niivue_backend" {
 }
 
 resource "aws_appautoscaling_policy" "fullstack_niivue_backend" {
-  name               = "fullstack_niivue_backend"
+  name               = "fullstack-niivue-backend"
   policy_type        = "TargetTrackingScaling"
   resource_id        = aws_appautoscaling_target.fullstack_niivue_backend.resource_id
   scalable_dimension = aws_appautoscaling_target.fullstack_niivue_backend.scalable_dimension
@@ -119,22 +120,22 @@ resource "aws_appautoscaling_policy" "fullstack_niivue_backend" {
 
 # Load Balancer
 resource "aws_lb" "fullstack_niivue_backend" {
-  name               = "fullstack_niivue_backend"
+  name               = "fullstack-niivue-backend"
   internal           = false
   load_balancer_type = "application"
   subnets            = data.aws_subnets.private.ids
-  security_groups    = [aws_security_group.fullstack_niivue_alb.id]
+  security_groups    = [aws_security_group.fullstack_niivue_lb.id]
 }
 
 resource "aws_lb_target_group" "fullstack_niivue_backend" {
-  name        = "fullstack_niivue_backend"
+  name        = "fullstack-niivue-backend"
   port        = 8000
   protocol    = "HTTP"
   vpc_id      = aws_security_group.fullstack_niivue_backend.vpc_id
   target_type = "ip"
 
   health_check {
-    path                = "/health"
+    path                = "/api/v1/utils/health-check"
     port                = "8000"
     protocol            = "HTTP"
     healthy_threshold   = 2
@@ -144,18 +145,6 @@ resource "aws_lb_target_group" "fullstack_niivue_backend" {
   }
 }
 
-resource "aws_lb_listener" "fullstack_niivue_backend_https" {
-  load_balancer_arn = aws_lb.fullstack_niivue_backend.arn
-  port              = "443"
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = data.aws_acm_certificate.fullstack_niivue.arn
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.fullstack_niivue_backend.arn
-  }
-}
 
 resource "aws_lb_listener" "fullstack_niivue_backend_http" {
   load_balancer_arn = aws_lb.fullstack_niivue_backend.arn
@@ -163,11 +152,7 @@ resource "aws_lb_listener" "fullstack_niivue_backend_http" {
   protocol          = "HTTP"
 
   default_action {
-    type = "redirect"
-    redirect {
-      port        = "443"
-      protocol    = "HTTPS"
-      status_code = "HTTP_301"
-    }
+    type = "forward"
+    target_group_arn = aws_lb_target_group.fullstack_niivue_backend.arn
   }
 }

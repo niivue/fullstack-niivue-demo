@@ -1,5 +1,5 @@
 resource "aws_ecr_repository" "fullstack_niivue_frontend" {
-  name = "fullstack_niivue_frontend"
+  name = "fullstack-niivue-frontend"
 }
 
 resource "docker_image" "fullstack_niivue_frontend" {
@@ -16,7 +16,7 @@ resource "docker_registry_image" "fullstack_niivue_frontend" {
 }
 
 resource "aws_ecs_service" "fullstack_niivue_frontend" {
-  name            = "fullstack_niivue_frontend"
+  name            = "fullstack-niivue-frontend"
   cluster         = aws_ecs_cluster.fullstack_niivue.id
   task_definition = aws_ecs_task_definition.fullstack_niivue_frontend.arn
   desired_count   = 1
@@ -31,7 +31,7 @@ resource "aws_ecs_service" "fullstack_niivue_frontend" {
   load_balancer {
     target_group_arn = aws_lb_target_group.fullstack_niivue_frontend.arn
     container_name   = "fullstack_niivue_frontend"
-    container_port   = 3000
+    container_port   = 80
   }
 }
 
@@ -54,24 +54,11 @@ resource "aws_ecs_task_definition" "fullstack_niivue_frontend" {
       networkMode = "awsvpc",
       portMappings = [
         {
-          containerPort = 3000,
-          hostPort      = 3000
+          containerPort = 80,
+          hostPort      = 80
         }
       ],
-      environment = [
-        {
-          name  = "BACKEND_BASE_URL",
-          value = local.backend_url
-        },
-        {
-          name  = "WORKOS_API_KEY",
-          value = var.workos_api_key
-        },
-        {
-          name  = "WORKOS_CLIENT_ID",
-          value = var.workos_client_id
-        },
-      ],
+      environment = local.frontend_environment_vars,
       logConfiguration = {
         logDriver = "awslogs",
         options = {
@@ -88,14 +75,14 @@ resource "aws_ecs_task_definition" "fullstack_niivue_frontend" {
 
 # Security Group
 resource "aws_security_group" "fullstack_niivue_frontend" {
-  name        = "fullstack_niivue_frontend"
+  name        = "fullstack-niivue-frontend"
   description = "Expenseflow UI Security Group"
 
   ingress {
-    from_port       = 3000
-    to_port         = 3000
+    from_port       = 80
+    to_port         = 80
     protocol        = "tcp"
-    security_groups = [aws_security_group.fullstack_niivue_alb.id]
+    security_groups = [aws_security_group.fullstack_niivue_lb.id]
   }
 
   egress {
@@ -109,23 +96,23 @@ resource "aws_security_group" "fullstack_niivue_frontend" {
 
 # Load Balancer
 resource "aws_lb" "fullstack_niivue_frontend" {
-  name               = "fullstack_niivue_frontend"
+  name               = "fullstack-niivue-frontend"
   internal           = false
   load_balancer_type = "application"
   subnets            = data.aws_subnets.private.ids
-  security_groups    = [aws_security_group.fullstack_niivue_alb.id]
+  security_groups    = [aws_security_group.fullstack_niivue_lb.id]
 }
 
 resource "aws_lb_target_group" "fullstack_niivue_frontend" {
-  name        = "fullstack_niivue_frontend"
-  port        = 3000
+  name        = "fullstack-niivue-frontend"
+  port        = 80
   protocol    = "HTTP"
   vpc_id      = aws_security_group.fullstack_niivue_frontend.vpc_id
   target_type = "ip"
 
   health_check {
-    path                = "/health"
-    port                = "3000"
+    path                = "/auth"
+    port                = "80"
     protocol            = "HTTP"
     healthy_threshold   = 2
     unhealthy_threshold = 2
@@ -134,18 +121,6 @@ resource "aws_lb_target_group" "fullstack_niivue_frontend" {
   }
 }
 
-resource "aws_lb_listener" "fullstack_niivue_frontend_https" {
-  load_balancer_arn = aws_lb.fullstack_niivue_frontend.arn
-  port              = "443"
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = data.aws_acm_certificate.fullstack_niivue.arn
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.fullstack_niivue_frontend.arn
-  }
-}
 
 resource "aws_lb_listener" "fullstack_niivue_frontend_http" {
   load_balancer_arn = aws_lb.fullstack_niivue_frontend.arn
@@ -153,11 +128,7 @@ resource "aws_lb_listener" "fullstack_niivue_frontend_http" {
   protocol          = "HTTP"
 
   default_action {
-    type = "redirect"
-    redirect {
-      port        = "443"
-      protocol    = "HTTPS"
-      status_code = "HTTP_301"
-    }
+    type = "forward"
+    target_group_arn = aws_lb_target_group.fullstack_niivue_frontend.arn
   }
 }

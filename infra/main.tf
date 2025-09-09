@@ -9,11 +9,6 @@ terraform {
       version = "3.0.2"
     }
   }
-  backend "s3" {
-    bucket = "expenseflow-tfstate"
-    key    = "state/terraform.tfstate"
-    region = "us-east-1"
-  }
 }
 
 provider "aws" {
@@ -53,5 +48,5 @@ data "aws_subnets" "private" {
 }
 
 resource "aws_ecs_cluster" "fullstack_niivue" {
-  name = "fullstack_niivue"
+  name = "fullstack-niivue"
 }
