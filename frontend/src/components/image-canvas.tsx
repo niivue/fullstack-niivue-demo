@@ -2,9 +2,10 @@
 
 import { useRef, useEffect, useState } from "react";
 import { Niivue, NVImage } from "@niivue/niivue";
+import ViewSelector from "@/components/view-selector";
+import { ViewMode } from "./view-selector";
 
 interface ImageCanvasProps {
-  viewMode: "axial" | "coronal" | "sagittal" | "multi" | "render";
   nvRef: Niivue;
 }
 
@@ -16,11 +17,13 @@ export const sliceTypeMap: { [type: string]: number } = {
   render: 4,
 };
 
-export default function ImageCanvas({ viewMode, nvRef }: ImageCanvasProps) {
+export default function ImageCanvas({ nvRef }: ImageCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
-
+  const [viewMode, setViewMode] = useState<
+    "axial" | "coronal" | "sagittal" | "multi" | "render"
+  >("axial");
   useEffect(() => {
     const canvas = canvasRef.current;
     const nv = nvRef;
@@ -31,6 +34,13 @@ export default function ImageCanvas({ viewMode, nvRef }: ImageCanvasProps) {
     nv.setSliceType(sliceTypeMap[viewMode] || 0); // Default to axial if viewMode is invalid;
     setImageLoaded(true);
   }, []);
+
+  const handleViewMode = (mode: ViewMode) => {
+    setViewMode(mode);
+    if (nvRef) {
+      nvRef.setSliceType(sliceTypeMap[mode] || 0); // Default to axial if mode is invalid
+    }
+  };
 
   const renderMultiView = () => {
     if (viewMode !== "multi") return null;
@@ -63,18 +73,27 @@ export default function ImageCanvas({ viewMode, nvRef }: ImageCanvasProps) {
   };
 
   return (
-    <div
-      ref={containerRef}
-      className="niivue-canvas w-full h-full relative bg-[#111]"
-    >
-      <canvas ref={canvasRef}></canvas>
-      {getViewLabel()}
-      {renderMultiView()}
-      {!imageLoaded && (
-        <div className="absolute inset-0 flex items-center justify-center text-white">
-          Loading image...
+    <div className="relative flex h-full flex-col">
+      <div className="flex-1 overflow-hidden">
+        <div
+          ref={containerRef}
+          className="niivue-canvas w-full h-full relative bg-[#111]"
+        >
+          <canvas ref={canvasRef}></canvas>
+          {getViewLabel()}
+          {renderMultiView()}
+          {!imageLoaded && (
+            <div className="absolute inset-0 flex items-center justify-center text-white">
+              Loading image...
+            </div>
+          )}
         </div>
-      )}
+      </div>
+      <div className="border-t bg-background p-2">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <ViewSelector currentView={viewMode} onViewChange={handleViewMode} />
+        </div>
+      </div>
     </div>
   );
 }

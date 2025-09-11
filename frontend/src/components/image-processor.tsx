@@ -1,26 +1,23 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PanelLeft, PanelRight, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import ViewSelector from "@/components/view-selector";
 import ProcessingHistory from "@/components/processing-history";
 import { cn } from "@/lib/utils";
-import { DocumentData, Niivue, NVImage } from "@niivue/niivue";
+import { Niivue, NVImage } from "@niivue/niivue";
 import ProcessScene from "./Scenes/ProcessScene";
 import ImageUploader from "./image-uploader";
 import ImageCanvas from "./image-canvas";
-import { sliceTypeMap } from "./image-canvas";
-import { ViewMode } from "./view-selector";
 import NiimathConfig, {
   type NiimathOperation,
 } from "@/components/niimath-config";
 import useAuth from "@/hooks/useAuth";
+import ImageList from "./image-list";
 
 export type ImageFile = {
   id: string;
@@ -35,7 +32,7 @@ type ProcessingTool = {
   description: string;
 };
 
-const nv = new Niivue({
+export const nv = new Niivue({
   loadingText: "Drag-drop images",
   dragAndDropEnabled: true,
   textHeight: 0.02,
@@ -52,9 +49,6 @@ export default function MedicalImageProcessor() {
   const [sceneId, setSceneId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [selectedTool, setSelectedTool] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<
-    "axial" | "coronal" | "sagittal" | "multi" | "render"
-  >("axial");
   const [niimathOperations, setNiimathOperations] = useState<
     NiimathOperation[]
   >([]);
@@ -95,21 +89,6 @@ export default function MedicalImageProcessor() {
     }
   };
 
-  const toggleImageSelection = (id: string) => {
-    setImages(
-      images.map((img) =>
-        img.id === id ? { ...img, selected: !img.selected } : img
-      )
-    );
-  };
-
-  const handleViewMode = (mode: ViewMode) => {
-    setViewMode(mode);
-    if (nvRef.current) {
-      nvRef.current.setSliceType(sliceTypeMap[mode] || 0); // Default to axial if mode is invalid
-    }
-  };
-
   const handleVisibility = (id: number) => {
     setCurrentImageIndex(id);
     images.map((img, index) => {
@@ -122,6 +101,20 @@ export default function MedicalImageProcessor() {
     });
     nv.updateGLVolume();
   };
+
+  // Check if the array of volumes in Niivue changes
+  useEffect(() => {
+    if (!nvRef.current) return;
+    const nv = nvRef.current;
+    console.log("Niivue volumes changed:", nv.volumes);
+    // If the current image index is null and there are volumes, set to first volume
+    if (currentImageIndex === null && nv.volumes.length > 0) {
+      setCurrentImageIndex(0);
+      // Set the first volume to visible
+      nv.setOpacity(nv.getVolumeIndexByID(nv.volumes[0].id), 1);
+      nv.updateGLVolume();
+    }
+  }, [nv.volumes]);
 
   return (
     <div className="flex h-screen flex-col">
@@ -164,19 +157,7 @@ export default function MedicalImageProcessor() {
                 />
               </div>
             ) : (
-              <div className="relative flex h-full flex-col">
-                <div className="flex-1 overflow-hidden">
-                  {<ImageCanvas viewMode={viewMode} nvRef={nv} />}
-                </div>
-                <div className="border-t bg-background p-2">
-                  <div className="flex items-center justify-between flex-wrap gap-2">
-                    <ViewSelector
-                      currentView={viewMode}
-                      onViewChange={handleViewMode}
-                    />
-                  </div>
-                </div>
-              </div>
+              <ImageCanvas nvRef={nv} />
             )}
           </div>
         </main>
@@ -215,47 +196,12 @@ export default function MedicalImageProcessor() {
               </TabsList>
 
               <TabsContent value="images" className="flex-1 p-0">
-                <div className="flex flex-col h-full">
-                  <ScrollArea className="flex-1">
-                    {images.length > 0 ? (
-                      <div className="grid gap-2 p-4">
-                        {images.map((image, index) => (
-                          <div
-                            key={image.id}
-                            className={cn(
-                              "flex items-center gap-2 p-2 rounded-md cursor-pointer",
-                              currentImageIndex === index
-                                ? "bg-muted"
-                                : "hover:bg-muted/50"
-                            )}
-                            onClick={() => handleVisibility(index)}
-                          >
-                            <div className="flex-shrink-0">
-                              <Checkbox
-                                id={`select-${image.id}`}
-                                checked={image.selected}
-                                onCheckedChange={() =>
-                                  toggleImageSelection(image.id)
-                                }
-                                onClick={(e) => e.stopPropagation()}
-                              />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium truncate">
-                                {image.name}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center justify-center h-full p-4 text-center text-muted-foreground">
-                        <ImageIcon className="h-8 w-8 mb-2" />
-                        <p>No images uploaded yet</p>
-                      </div>
-                    )}
-                  </ScrollArea>
-                </div>
+                <ImageList
+                  images={images}
+                  currentImageIndex={currentImageIndex}
+                  setImages={setImages}
+                  handleVisibility={handleVisibility}
+                />
               </TabsContent>
 
               <TabsContent value="tools" className="flex-1 p-0">

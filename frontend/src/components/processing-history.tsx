@@ -276,10 +276,7 @@ export default function ProcessingHistory({ nvRef }: ProcessingHistoryProps) {
                               </Button>
                             </div>
                           )}
-
-                          {item.status === "failed" && (
-                            <DeleteScene id={item.id} />
-                          )}
+                          <DeleteScene id={item.id} />
                         </div>
 
                         {/* Expanded Content */}
