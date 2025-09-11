@@ -15,19 +15,6 @@ interface ImageUploaderProps {
   compact?: boolean;
 }
 
-interface UploadedFile {
-  original_name: string;
-  filename: string;
-  url: string;
-  size: number;
-}
-
-interface UploadResponse {
-  message: string;
-  files: UploadedFile[];
-  tool_name?: string;
-}
-
 export default function ImageUploader({
   onUpload,
   onSetSceneId,
@@ -35,7 +22,6 @@ export default function ImageUploader({
 }: ImageUploaderProps) {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  // const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [processingStatus, setProcessingStatus] = useState<
     "idle" | "uploading" | "creating" | "processing" | "completed" | "error"
   >("idle");

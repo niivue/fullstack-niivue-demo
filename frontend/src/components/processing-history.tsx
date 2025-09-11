@@ -230,11 +230,19 @@ export default function ProcessingHistory({ nvRef }: ProcessingHistoryProps) {
                           </div>
 
                           {/* Start time */}
-                          <div className="text-xs text-muted-foreground mb-2">
-                            <span className="flex items-center">
-                              <Clock className="h-3 w-3 mr-1 inline" />
-                              {formatDate(item.timestamp as string)}
-                            </span>
+                          <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground mb-3">
+                            <div className="flex items-center gap-1">
+                              <span className="flex items-center">
+                                <Clock className="h-3 w-3 mr-1 inline" />
+                                {formatDate(item.timestamp as string)}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span>
+                                {getImageCount(item)} image
+                                {getImageCount(item) !== 1 ? "s" : ""}
+                              </span>
+                            </div>
                           </div>
 
                           <div className="text-xs mb-3">
@@ -244,26 +252,9 @@ export default function ProcessingHistory({ nvRef }: ProcessingHistoryProps) {
                             <span>{item.id}</span>
                           </div>
 
-                          {/* Quick Image Info */}
-                          <div className="flex items-center gap-2 text-xs mb-3">
-                            <div className="flex items-center gap-1">
-                              <span>
-                                {getImageCount(item)} image
-                                {getImageCount(item) !== 1 ? "s" : ""}
-                              </span>
-                            </div>
-
-                            <div className="flex items-center gap-1">
-                              <Clock className="h-3 w-3" />
-                              <span>
-                                {formatDuration(item.timestamp as string)}
-                              </span>
-                            </div>
-                          </div>
-
                           {/* Action Buttons */}
                           {item.status === "completed" && (
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 justify-between mb-1">
                               <ViewResult item={item} nvRef={nvRef} />
                               <Button
                                 variant="outline"
