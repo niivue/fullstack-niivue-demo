@@ -15,13 +15,23 @@ import MedicalImageProcessor from "./components/image-processor.tsx";
 import { ApiError, OpenAPI } from "./client";
 import { routeTree } from "./routeTree.gen";
 
-OpenAPI.BASE = import.meta.env.VITE_API_URL;
+// Use runtime config if available, fallback to build-time env var
+declare global {
+  interface Window {
+    ENV?: {
+      VITE_API_URL?: string;
+    };
+  }
+}
+
+OpenAPI.BASE = window.ENV?.VITE_API_URL || import.meta.env.VITE_API_URL || "";
 OpenAPI.TOKEN = async () => {
   const token = localStorage.getItem("access_token") || "";
   return token;
 };
 
 const handleApiError = (error: Error) => {
+  console.log("API error occurred:", error, "base URL:", OpenAPI.BASE);
   if (error instanceof ApiError && [401, 403].includes(error.status)) {
     localStorage.removeItem("access_token");
     window.location.href = "/auth";

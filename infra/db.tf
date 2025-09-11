@@ -5,7 +5,7 @@ resource "aws_db_instance" "fullstack_niivue_db" {
   engine                 = "postgres"
   engine_version         = "17"
   instance_class         = "db.t4g.micro"
-  db_name                = "fullstack_niivue"
+  db_name                = local.db_name
   username               = local.db_username
   password               = local.db_password
   skip_final_snapshot    = true

@@ -49,14 +49,39 @@ resource "aws_ecs_task_definition" "fullstack_niivue_backend" {
   container_definitions = jsonencode([
     {
       image       = docker_image.fullstack_niivue_backend.name,
-      cpu         = 1024,
-      memory      = 2048,
+      cpu         = 512,
+      memory      = 1024,
+      name        = "fullstack_niivue_backend_prestart",
+      networkMode = "awsvpc",
+      essential   = false,
+      command     = ["bash", "scripts/prestart.sh"],
+      environment = local.backend_environment_vars,
+      logConfiguration = {
+        logDriver = "awslogs",
+        options = {
+          awslogs-group         = "/fullstack_niivue/backend-prestart",
+          awslogs-region        = "us-east-1",
+          awslogs-stream-prefix = "ecs",
+          awslogs-create-group  = "true"
+        }
+      }
+    },
+    {
+      image       = docker_image.fullstack_niivue_backend.name,
+      cpu         = 512,
+      memory      = 1024,
       name        = "fullstack_niivue_backend",
       networkMode = "awsvpc",
       portMappings = [
         {
           containerPort = 8000,
           hostPort      = 8000
+        }
+      ],
+      dependsOn = [
+        {
+          containerName = "fullstack_niivue_backend_prestart",
+          condition     = "SUCCESS"
         }
       ],
       environment = local.backend_environment_vars,

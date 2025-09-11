@@ -6,8 +6,8 @@ locals {
   db_port         = var.postgres_port
   
   # Application URLs - using ALB DNS names directly
-  frontend_url = "https://${aws_lb.fullstack_niivue_frontend.dns_name}"
-  backend_url  = "https://${aws_lb.fullstack_niivue_backend.dns_name}"
+  frontend_url = "http://${aws_lb.fullstack_niivue_frontend.dns_name}"
+  backend_url  = "http://${aws_lb.fullstack_niivue_backend.dns_name}"
   
   # Application configuration
   project_name = var.project_name
@@ -75,6 +75,10 @@ locals {
     {
       name  = "FIRST_SUPERUSER_PASSWORD"
       value = var.first_superuser_password
+    },
+    {
+      name = "API_BASE_URL"
+      value = local.backend_url
     }
   ])
   
