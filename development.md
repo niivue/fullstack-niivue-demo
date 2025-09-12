@@ -101,10 +101,11 @@ You can set several variables, like:
 ## WorkOS setup
 
 ### Cross-Origin Resource Sharing (CORS)
-To connect your WorkOS account with the frontend, go to your WorkOS account dashboard, navigate to Authentication on the left sidebar, then choose Sessions on the second sidebar like below:
-<img src="img/workos-cors.png" style="width: 40%">
+To connect your WorkOS account with the frontend, go to your WorkOS account dashboard, navigate to Authentication on the left sidebar, then choose Sessions on the second sidebar like below.
 
 Click `Manage` in the `Cross-Origin Resource Sharing (CORS)` section and add the origins you want to allow interaction with WorkOS API. Eg. `http://localhost:5173` for local development or your domain in production
+
+<img src="img/workos-cors.png" style="width: 80%">
 
 ### Session lifetime
 
