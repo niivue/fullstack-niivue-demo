@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react";
 import { type ScenePublic } from "@/client";
 import { Niivue } from "@niivue/niivue";
+import { ImageFile } from "../image-processor";
 
 export function getScene({ id }: { id: string }) {
   return {
@@ -15,14 +16,21 @@ export function getScene({ id }: { id: string }) {
 interface ViewResultProps {
   item: ScenePublic;
   nvRef: React.RefObject<Niivue>;
+  onSetCurrentImageIndex?: (index: number) => void;
+  setImages: React.Dispatch<React.SetStateAction<ImageFile[]>>;
 }
 
-export default function ViewResult({ item, nvRef }: ViewResultProps) {
+export default function ViewResult({
+  item,
+  nvRef,
+  onSetCurrentImageIndex,
+  setImages,
+}: ViewResultProps) {
   const { data, isLoading, isError } = useQuery(getScene({ id: item.id }));
 
   // Implement viewing the result
   const handleViewResult = async (scene: ScenePublic) => {
-    console.log("Viewing result for", scene);
+    console.log("Viewing result for", scene, nvRef.current);
 
     if (!nvRef.current) {
       alert("Niivue instance is not available");
@@ -31,19 +39,31 @@ export default function ViewResult({ item, nvRef }: ViewResultProps) {
     if (scene.error) {
       alert(`Process returned error message ${scene.error}`);
     }
-    // if (scene.result.imageOptionsArray!.length === 0) {
-    //   alert("No image options available in the result");
-    //   return;
-    // }
+    if (!nvRef.current.canvas) {
+      onSetCurrentImageIndex!(0);
+    }
 
     if (Array.isArray(scene.nv_document.imageOptionsArray)) {
       for (const img of scene.nv_document.imageOptionsArray) {
         if (img.resultUrl) {
           console.log("Loading volume from URL:", img.resultUrl);
-          await nvRef.current?.addVolumeFromUrl({
-            url: img.resultUrl,
-            name: img.resultUrl.split("/").pop(),
-          });
+          await nvRef.current
+            ?.addVolumeFromUrl({
+              url: img.resultUrl,
+              name: img.resultUrl.split("/").pop(),
+            })
+            .then((nvimage) => {
+              setImages((prevImages) => [
+                ...prevImages,
+                {
+                  id: nvimage.id,
+                  name: nvimage.name || "Unnamed",
+                  file: new File([], nvimage.name || "file"),
+                  selected: true,
+                },
+              ]);
+              onSetCurrentImageIndex!(nvRef.current!.volumes.length - 1);
+            });
         } else {
           console.warn("Image option does not have a resultUrl:", img);
         }

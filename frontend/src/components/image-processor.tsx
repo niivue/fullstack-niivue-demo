@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { PanelLeft, PanelRight, ImageIcon } from "lucide-react";
+import { useRef, useState } from "react";
+import { PanelLeft, PanelRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -11,7 +11,7 @@ import ProcessingHistory from "@/components/processing-history";
 import { cn } from "@/lib/utils";
 import { Niivue, NVImage } from "@niivue/niivue";
 import ProcessScene from "./Scenes/ProcessScene";
-import ImageUploader from "./image-uploader";
+import ImageUploader from "./Uploader/image-uploader";
 import ImageCanvas from "./image-canvas";
 import NiimathConfig, {
   type NiimathOperation,
@@ -33,8 +33,7 @@ type ProcessingTool = {
 };
 
 export const nv = new Niivue({
-  loadingText: "Drag-drop images",
-  dragAndDropEnabled: true,
+  dragAndDropEnabled: false,
   textHeight: 0.02,
   backColor: [0, 0, 0, 1],
   crosshairColor: [244, 243, 238, 0.5],
@@ -83,10 +82,7 @@ export default function MedicalImageProcessor() {
       };
       setImages((prev) => [...prev, ...[newImage]]);
     });
-
-    if (currentImageIndex === null && files.length > 0) {
-      setCurrentImageIndex(images.length);
-    }
+    setCurrentImageIndex(nv.volumes.length - 1);
   };
 
   const handleVisibility = (id: number) => {
@@ -101,20 +97,6 @@ export default function MedicalImageProcessor() {
     });
     nv.updateGLVolume();
   };
-
-  // Check if the array of volumes in Niivue changes
-  useEffect(() => {
-    if (!nvRef.current) return;
-    const nv = nvRef.current;
-    console.log("Niivue volumes changed:", nv.volumes);
-    // If the current image index is null and there are volumes, set to first volume
-    if (currentImageIndex === null && nv.volumes.length > 0) {
-      setCurrentImageIndex(0);
-      // Set the first volume to visible
-      nv.setOpacity(nv.getVolumeIndexByID(nv.volumes[0].id), 1);
-      nv.updateGLVolume();
-    }
-  }, [nv.volumes]);
 
   return (
     <div className="flex h-screen flex-col">
@@ -157,7 +139,11 @@ export default function MedicalImageProcessor() {
                 />
               </div>
             ) : (
-              <ImageCanvas nvRef={nv} />
+              <ImageCanvas
+                nvRef={nv}
+                onFileUpload={handleFileUpload}
+                onSetSceneId={setSceneId}
+              />
             )}
           </div>
         </main>
@@ -241,7 +227,11 @@ export default function MedicalImageProcessor() {
               </TabsContent>
 
               <TabsContent value="history" className="flex-1 p-0">
-                <ProcessingHistory nvRef={nvRef} />
+                <ProcessingHistory
+                  nvRef={nvRef}
+                  onSetCurrentImageIndex={setCurrentImageIndex}
+                  setImages={setImages}
+                />
               </TabsContent>
             </Tabs>
 

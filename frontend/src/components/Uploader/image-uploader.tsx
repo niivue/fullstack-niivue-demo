@@ -117,7 +117,6 @@ export default function ImageUploader({
           type="file"
           ref={fileInputRef}
           onChange={handleFileChange}
-          accept="image/*"
           multiple
           className="hidden"
         />

@@ -11,7 +11,7 @@ import { TabsContent } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Body_login_login_access_token as AccessToken } from "@/client";
 import useAuth, { isLoggedIn } from "@/hooks/useAuth";
-import { emailPattern, passwordRules } from "@/lib/api-utils";
+import { emailPattern, passwordRules } from "@/lib/auth-utils";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);

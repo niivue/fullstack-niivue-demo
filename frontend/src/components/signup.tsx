@@ -15,7 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { TabsContent } from "@/components/ui/tabs";
-import { emailPattern, passwordRules } from "@/lib/api-utils";
+import { emailPattern, passwordRules } from "@/lib/auth-utils";
 
 interface UserRegisterForm extends UserRegister {
   confirm_password: string;

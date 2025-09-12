@@ -37,9 +37,12 @@ import {
   getSearchableText,
   getProcessingMessage,
 } from "@/lib/scene-utils";
+import { ImageFile } from "./image-processor";
 
 interface ProcessingHistoryProps {
   nvRef: React.RefObject<Niivue>;
+  onSetCurrentImageIndex?: (index: number) => void;
+  setImages: React.Dispatch<React.SetStateAction<ImageFile[]>>;
 }
 
 function getItemsQueryOptions() {
@@ -49,7 +52,11 @@ function getItemsQueryOptions() {
   };
 }
 
-export default function ProcessingHistory({ nvRef }: ProcessingHistoryProps) {
+export default function ProcessingHistory({
+  nvRef,
+  onSetCurrentImageIndex,
+  setImages,
+}: ProcessingHistoryProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [downloadDialogOpen, setDownloadDialogOpen] = useState(false);
@@ -255,7 +262,12 @@ export default function ProcessingHistory({ nvRef }: ProcessingHistoryProps) {
                           {/* Action Buttons */}
                           {item.status === "completed" && (
                             <div className="flex gap-2 justify-between mb-1">
-                              <ViewResult item={item} nvRef={nvRef} />
+                              <ViewResult
+                                item={item}
+                                nvRef={nvRef}
+                                onSetCurrentImageIndex={onSetCurrentImageIndex}
+                                setImages={setImages}
+                              />
                               <Button
                                 variant="outline"
                                 size="sm"

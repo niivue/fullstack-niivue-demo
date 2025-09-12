@@ -4,9 +4,12 @@ import { useRef, useEffect, useState } from "react";
 import { Niivue, NVImage } from "@niivue/niivue";
 import ViewSelector from "@/components/view-selector";
 import { ViewMode } from "./view-selector";
+import ImageUploader from "./Uploader/image-uploader";
 
 interface ImageCanvasProps {
   nvRef: Niivue;
+  onFileUpload: (files: File[]) => Promise<void>;
+  onSetSceneId: (sceneId: string) => void;
 }
 
 export const sliceTypeMap: { [type: string]: number } = {
@@ -17,7 +20,11 @@ export const sliceTypeMap: { [type: string]: number } = {
   render: 4,
 };
 
-export default function ImageCanvas({ nvRef }: ImageCanvasProps) {
+export default function ImageCanvas({
+  nvRef,
+  onFileUpload,
+  onSetSceneId,
+}: ImageCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -92,6 +99,11 @@ export default function ImageCanvas({ nvRef }: ImageCanvasProps) {
       <div className="border-t bg-background p-2">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <ViewSelector currentView={viewMode} onViewChange={handleViewMode} />
+          <ImageUploader
+            onUpload={onFileUpload}
+            onSetSceneId={onSetSceneId}
+            compact={true}
+          />
         </div>
       </div>
     </div>

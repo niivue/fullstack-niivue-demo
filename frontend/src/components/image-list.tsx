@@ -51,7 +51,7 @@ export default function ImageList({
                   />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{image.name}</p>
+                  <p className="text-sm font-medium text-wrap">{image.name}</p>
                 </div>
               </div>
             ))}

@@ -10,7 +10,7 @@ import {
   LoginService,
   UsersService,
 } from "@/client";
-import { handleError } from "@/lib/api-utils";
+import { handleError } from "@/lib/auth-utils";
 
 const isLoggedIn = () => {
   return localStorage.getItem("access_token") !== null;
