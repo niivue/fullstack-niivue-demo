@@ -15,6 +15,10 @@ def create_user(*, session: Session, user_create: UserCreate) -> User:
     session.refresh(db_obj)
     return db_obj
 
+def get_user_by_email(*, session: Session, email: str) -> User | None:
+    statement = select(User).where(User.email == email)
+    session_user = session.exec(statement).first()
+    return session_user
 
 def create_scene(*, session: Session, scene_in: SceneCreate, owner_id: uuid.UUID) -> Scene:
     print(f"Creating scene with data: {scene_in}")
