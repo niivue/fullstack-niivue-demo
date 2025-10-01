@@ -39,6 +39,23 @@ npm run dev
 
 * Then open your browser at http://localhost:5173/.
 
+## Use Shadcn UI
+To use Shadcn UI components, you can follow the [official Shadcn UI documentation](https://ui.shadcn.com/docs).
+
+Find the components on the [Shadcn UI components page](https://ui.shadcn.com/docs/components).
+
+Use the command below to add a new component:
+
+```bash
+npx shadcn@latest add <component-name>
+```
+
+It requires node >=22, so if you are using nvm, you can switch to node 22 with:
+
+```bash
+nvm use 22
+```
+
 ## Generate Client
 
 ### Automatically
