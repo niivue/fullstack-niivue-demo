@@ -1,8 +1,5 @@
 # Fullstack niivue demo App
 
-🚧 This is a work in progress 🚧
-
-
 ## Technology Stack and Features
 
 - ⚡️ [**FastAPI**](https://fastapi.tiangolo.com) for the Python backend API.
@@ -62,5 +59,5 @@ This includes using local domains, `.env` configurations, etc.
 
 ## Deployment
 
-Deployment docs: TBD
+Deployment docs: [infra/README.md](./infra/README.md).
 
