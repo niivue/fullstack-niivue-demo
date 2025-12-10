@@ -1,0 +1,40 @@
+services:
+  db:
+    restart: "no"
+    ports:
+      - "5432:5432"
+
+  backend:
+    restart: "no"
+    ports:
+      - "8000:8000"
+    build:
+      context: ./backend
+    command:
+      - pixi
+      - run
+      - serve
+    develop:
+      watch:
+        - path: ./backend
+          action: sync
+          target: /app
+          ignore:
+            - ./backend/.pixi
+            - .pixi
+        - path: ./backend/pixi.toml
+          action: rebuild
+
+  frontend:
+    restart: "no"
+    ports:
+      - "5173:80"
+    build:
+      context: ./frontend
+      args:
+        - VITE_API_URL=http://localhost:8000
+        - NODE_ENV=development
+    develop:
+      watch:
+        - path: ./frontend/src
+          action: rebuild

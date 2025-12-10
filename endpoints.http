@@ -1,0 +1,52 @@
+@baseUrl = http://localhost:8000
+
+### Health
+GET {{baseUrl}}/api/v1/utils/health-check
+
+### List Scenes
+GET {{baseUrl}}/api/v1/scenes
+
+### Get a specific Scene
+GET {{baseUrl}}/api/v1/scenes/ba256688-d729-46ae-9006-8251f3c300e0
+
+### Create a Scene (simple creation)
+POST {{baseUrl}}/api/v1/scenes/create
+Content-Type: application/json
+
+{
+    "nv_document": {
+      "title": "aa15c6e2-4a51-4deb-b03b-3f8cac99b00d",
+      "imageOptionsArray": [
+        {
+            "url": "data/ds004230--20250613/derivatives/freesurfer/fsaverage/mri.2mm/T1.mgz",
+            "name": "T1.mgz",
+            "colormap": "gray",
+            "opacity": 1.0
+        }
+      ]
+    },
+    "tool_name": "niimath"
+}
+
+### Create and Process Scene (with niimath processing)
+POST {{baseUrl}}/api/v1/scenes/
+Content-Type: application/json
+
+{
+    "nv_document": {
+      "title": "aa15c6e2-4a51-4deb-b03b-3f8cac99b00d",
+      "imageOptionsArray": [
+        {
+            "url": "data/ds004230--20250613/derivatives/freesurfer/fsaverage/mri.2mm/T1.mgz",
+            "name": "T1.mgz",
+            "colormap": "gray",
+            "opacity": 1.0
+        }
+      ]
+    },
+    "tool_name": "niimath",
+    "status": "processing"
+}
+
+### Delete a Scene
+DELETE {{baseUrl}}/api/v1/todos/1

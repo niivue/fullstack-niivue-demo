@@ -1,51 +1,63 @@
 # Fullstack niivue demo App
 
-🚧 This is a work in progress 🚧
+## Technology Stack and Features
 
-## set up environments and install dependencies
+- ⚡️ [**FastAPI**](https://fastapi.tiangolo.com) for the Python backend API.
+    - 🧰 [SQLModel](https://sqlmodel.tiangolo.com) for the Python SQL database interactions (ORM).
+    - 🔍 [Pydantic](https://docs.pydantic.dev), used by FastAPI, for the data validation and settings management.
+    - 💾 [PostgreSQL](https://www.postgresql.org) as the SQL database.
+    - 🔄 [Alembic](https://alembic.sqlalchemy.org/en/latest/) for database migration.
+    - 🔑 [WorkOS](https://workos.com/) for authentication.
+    - ⚙️ [Niimath](https://github.com/rordenlab/niimath) for processing.
+- ⚛️ [React](https://react.dev) for the frontend.
+    - 🩻 [NiiVue](https://niivue.com/) for medical imaging visualization.
+    - 🪄 Using TypeScript, Vite, and other parts of a modern frontend stack.
+    - 🎨 [shadcn/ui](https://ui.shadcn.com/) for the frontend components.
 
-Requirements:
-- Node.js (for frontend environment)
-- npm (for frontend environment)
-- pixi (for backend environment)
-- git
+### Scene - Upload Images
+![Upload images](img/scene-upload.png)
 
+### Scene - Select Processing Tool
+<!-- ![Processing tool](img/processing-tool.png) -->
+<img src="img/processing-tool.png" style="width: 40%">
 
-### frontend
+### Scene - View Results
+![View result](img/view-result.png)
 
-```bash
-cd frontend
-npm install
-```
+## How To Use It
 
-### backend
+You can **just fork or clone** this repository and follow the steps belows.
 
-```bash
-cd backend
-pixi install
-```
+### Configure
 
-## run the frontend in development mode
+You can then update configs in the `.env` files to customize your configurations.
 
-```bash
-cd frontend
-npm run dev
-```
+Before deploying it, make sure you change at least the values  in `.env` file for:
 
-## run the backend in development mode
+- `WORKOS_API_KEY`
+- `WORKOS_CLIENT_ID`
 
-This hot reloads the backend when changes are made to the code.
+### Start the app with Docker
 
-> Note: the frontend will be "static" in this mode.
+Once setting up the environment variable, you can start the app by running `docker compose watch`.
 
-```bash
-cd backend
-pixi run dev
-```
+You can then go to `http://localhost:5173` in the browser, signup and login to use the app.
 
-## build the frontend for production
+## Backend Development
 
-```bash
-cd frontend
-npm run build
-```
+Backend docs: [backend/README.md](./backend/README.md).
+
+## Frontend Development
+
+Frontend docs: [frontend/README.md](./frontend/README.md).
+
+## Development
+
+General development docs: [development.md](./development.md).
+
+This includes using local domains, `.env` configurations, etc.
+
+## Deployment
+
+Deployment docs: [infra/README.md](./infra/README.md).
+
